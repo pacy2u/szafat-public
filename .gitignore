@@ -1,0 +1,56 @@
+# ============================================
+# Claude Code - dane agenta AI
+# ============================================
+# Folder .claude/ może zawierać tokeny, credentials,
+# historię sesji i inne prywatne dane agenta.
+# NIGDY nie pushuj tego na GitHub.
+.claude/
+
+# ============================================
+# Zmienne środowiskowe i sekrety
+# ============================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# ============================================
+# System operacyjny
+# ============================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# IDE / Edytory
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# Node.js (jeśli będzie używany)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ============================================
+# Python (jeśli będzie używany)
+# ============================================
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ============================================
+# Logi i pliki tymczasowe
+# ============================================
+*.log
+tmp/
+temp/

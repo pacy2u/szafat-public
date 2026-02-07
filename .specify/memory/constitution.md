@@ -1,50 +1,63 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+  Sync Impact Report
+  Version change: 0.0.0 → 1.0.0 (initial constitution creation)
+  Added principles:
+    - I. User-First Simplicity
+    - II. Test-First Development
+    - III. Data Integrity & Privacy
+    - IV. Progressive Enhancement
+  Added sections:
+    - Technology Stack
+    - Development Workflow
+    - Governance
+  Templates requiring updates:
+    - .specify/templates/plan-template.md ✅ compatible (Constitution Check section aligns)
+    - .specify/templates/spec-template.md ✅ compatible (user stories + requirements align)
+    - .specify/templates/tasks-template.md ✅ compatible (phase structure aligns)
+  Follow-up TODOs: none
+-->
+
+# Szafat Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. User-First Simplicity
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Every feature MUST serve a clear household use case. The primary user is a non-technical person managing everyday items at home. Interfaces MUST be intuitive enough to use without documentation. Adding an item to the catalog MUST take fewer than 3 taps/clicks. Search MUST return results in under 1 second for collections up to 10,000 items. No feature ships without answering: "Would my family actually use this daily?"
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Test-First Development
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+All new features MUST have tests written before implementation code. The Red-Green-Refactor cycle is strictly enforced: write a failing test, make it pass with minimal code, then refactor. Unit tests cover models and services. Integration tests cover API endpoints and database operations. End-to-end tests cover critical user journeys (add item, find item, move item). Test coverage for business logic MUST remain above 80%.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Data Integrity & Privacy
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+All household inventory data MUST be stored locally-first — the user's data belongs to the user. No telemetry or analytics without explicit opt-in consent. Database operations MUST be atomic: partial writes are never acceptable (e.g., moving an item between locations MUST not lose the item). All item locations MUST be consistent — an item cannot exist in two places simultaneously unless explicitly marked as "split quantity." Backups MUST be exportable in a standard format (JSON or CSV).
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Progressive Enhancement
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+The application MUST work as a basic inventory list with zero configuration. Advanced features (barcode scanning, expiry tracking, sharing between household members) MUST be additive — disabling them MUST NOT break core functionality. The tech stack MUST support offline-first usage for common operations (search, browse, add items). New features MUST NOT increase initial page load time by more than 200ms.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Technology Stack
+
+**Frontend**: React with TypeScript — component-based UI with type safety.
+**Backend**: Node.js with Express or Next.js API routes — JavaScript/TypeScript end-to-end for reduced context switching.
+**Database**: SQLite (local-first) or PostgreSQL (if multi-user sync is needed) — lightweight for single-household, scalable if needed later.
+**Testing**: Vitest for unit/integration tests, Playwright for E2E tests.
+**Target Platform**: Progressive Web App (PWA) — works on mobile browsers and desktops without app store dependency.
+**Language**: TypeScript throughout — strict mode enabled, no `any` types in production code.
+
+## Development Workflow
+
+All work follows the Specify workflow: Constitution → Specification → Plan → Tasks → Implementation.
+Every feature starts as a specification document before any code is written.
+Feature branches follow the naming convention `###-feature-name` (e.g., `001-item-catalog`).
+Commits MUST be atomic and descriptive — one logical change per commit.
+Pull requests MUST reference the corresponding specification and pass all CI checks before merge.
+Code reviews MUST verify compliance with this constitution's principles.
+The `main` branch MUST always be deployable.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the highest authority for project decisions. When a proposed feature or implementation conflicts with these principles, the principles win. Amendments to this constitution require: a written proposal documenting the change and rationale, a version bump following semantic versioning (MAJOR for principle removal/redefinition, MINOR for additions, PATCH for clarifications), and an update to all dependent templates and documentation. Compliance with these principles MUST be verified during code review. Complexity beyond what the principles allow MUST be justified in writing (see Complexity Tracking in plan template).
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-02-07 | **Last Amended**: 2026-02-07

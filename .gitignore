@@ -34,19 +34,29 @@ Desktop.ini
 *~
 
 # ============================================
-# Node.js (jeśli będzie używany)
+# Node.js / Next.js
 # ============================================
 node_modules/
 npm-debug.log*
 yarn-error.log*
+.next/
+out/
+dist/
+build/
+coverage/
 
 # ============================================
-# Python (jeśli będzie używany)
+# Prisma
 # ============================================
-__pycache__/
-*.pyc
-.venv/
-venv/
+prisma/*.db
+prisma/*.db-journal
+
+# ============================================
+# Testing
+# ============================================
+test-results/
+playwright-report/
+blob-report/
 
 # ============================================
 # Logi i pliki tymczasowe

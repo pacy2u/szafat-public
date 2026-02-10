@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StorageUnitType {
+  WARDROBE
+  FRIDGE
+}
+
+enum Locale {
+  PL
+  EN
+}
+
+enum DateFormat {
+  DD_MM_YYYY
+  MM_DD_YYYY
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  locale       Locale   @default(EN)
+  dateFormat   DateFormat @default(DD_MM_YYYY)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedApartments Apartment[]
+  memberships     ApartmentMember[]
+  inviteLinks     InviteLink[]
+  pushSubscriptions PushSubscription[]
+}
+
+model Apartment {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner        User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members      ApartmentMember[]
+  rooms        Room[]
+  storageUnits StorageUnit[]
+  inviteLinks  InviteLink[]
+}
+
+model ApartmentMember {
+  id          String   @id @default(uuid())
+  apartmentId String
+  userId      String
+  joinedAt    DateTime @default(now())
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([apartmentId, userId])
+  @@index([userId])
+}
+
+model InviteLink {
+  id          String   @id @default(uuid())
+  apartmentId String
+  token       String   @unique
+  createdById String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+  createdBy User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  apartmentId String
+  name        String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  apartment    Apartment     @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+  storageUnits StorageUnit[]
+}
+
+model StorageUnit {
+  id          String          @id @default(uuid())
+  apartmentId String
+  roomId      String?
+  name        String
+  type        StorageUnitType
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+  room      Room?     @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  shelves   Shelf[]
+  drawers   Drawer[]
+  items     Item[]
+
+  @@index([apartmentId, roomId])
+}
+
+model Shelf {
+  id            String   @id @default(uuid())
+  storageUnitId String
+  name          String
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  storageUnit StorageUnit @relation(fields: [storageUnitId], references: [id], onDelete: Cascade)
+  items       Item[]
+}
+
+model Drawer {
+  id            String   @id @default(uuid())
+  storageUnitId String
+  name          String
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  storageUnit StorageUnit @relation(fields: [storageUnitId], references: [id], onDelete: Cascade)
+  items       Item[]
+}
+
+model Item {
+  id             String    @id @default(uuid())
+  name           String
+  photoUrl       String?
+  thumbnailUrl   String?
+  expirationDate DateTime? @db.Date
+  storageUnitId  String
+  shelfId        String?
+  drawerId       String?
+  sortOrder      Int       @default(0)
+  archived       Boolean   @default(false)
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  storageUnit StorageUnit @relation(fields: [storageUnitId], references: [id], onDelete: Cascade)
+  shelf       Shelf?      @relation(fields: [shelfId], references: [id], onDelete: SetNull)
+  drawer      Drawer?     @relation(fields: [drawerId], references: [id], onDelete: SetNull)
+
+  @@index([storageUnitId, archived])
+  @@index([expirationDate])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+}

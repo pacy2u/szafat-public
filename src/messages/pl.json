@@ -1,0 +1,160 @@
+{
+  "common": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "confirm": "Potwierdź",
+    "back": "Wróć",
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd",
+    "retry": "Spróbuj ponownie",
+    "search": "Szukaj",
+    "noResults": "Brak wyników",
+    "required": "To pole jest wymagane"
+  },
+  "nav": {
+    "home": "Strona główna",
+    "apartments": "Mieszkania",
+    "scan": "Skanuj",
+    "search": "Szukaj",
+    "settings": "Ustawienia"
+  },
+  "auth": {
+    "login": "Zaloguj się",
+    "register": "Zarejestruj się",
+    "email": "Email",
+    "password": "Hasło",
+    "name": "Imię",
+    "loginTitle": "Zaloguj się do Szafat",
+    "registerTitle": "Utwórz konto",
+    "noAccount": "Nie masz konta?",
+    "hasAccount": "Masz już konto?",
+    "invalidEmail": "Podaj prawidłowy adres email",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
+    "emailTaken": "Ten adres email jest już zarejestrowany",
+    "invalidCredentials": "Nieprawidłowy email lub hasło"
+  },
+  "apartments": {
+    "title": "Moje mieszkania",
+    "create": "Utwórz mieszkanie",
+    "name": "Nazwa mieszkania",
+    "members": "Członkowie",
+    "inviteLink": "Link zaproszenia",
+    "generateInvite": "Wygeneruj link zaproszenia",
+    "revokeInvite": "Unieważnij",
+    "removeMember": "Usuń",
+    "switchApartment": "Zmień mieszkanie",
+    "deleteApartment": "Usuń mieszkanie",
+    "deleteConfirm": "Czy na pewno? Wszystkie pokoje, meble i przedmioty zostaną trwale usunięte.",
+    "rename": "Zmień nazwę mieszkania",
+    "export": "Eksportuj dane (JSON)"
+  },
+  "rooms": {
+    "title": "Pokoje",
+    "add": "Dodaj pokój",
+    "name": "Nazwa pokoju",
+    "delete": "Usuń pokój",
+    "deleteConfirm": "Usunięcie pokoju przeniesie wszystkie meble do Sierot.",
+    "rename": "Zmień nazwę pokoju"
+  },
+  "storage": {
+    "add": "Dodaj mebel",
+    "name": "Nazwa mebla",
+    "type": "Typ",
+    "wardrobe": "Szafa",
+    "fridge": "Lodówka",
+    "delete": "Usuń mebel",
+    "deleteConfirm": "To zarchiwizuje wszystkie przedmioty i usunie półki oraz szuflady. Kontynuować?",
+    "rename": "Zmień nazwę",
+    "moveTo": "Przenieś do pokoju"
+  },
+  "shelves": {
+    "add": "Dodaj półkę",
+    "name": "Nazwa półki",
+    "rename": "Zmień nazwę półki",
+    "delete": "Usuń półkę"
+  },
+  "drawers": {
+    "add": "Dodaj szufladę",
+    "name": "Nazwa szuflady",
+    "rename": "Zmień nazwę szuflady",
+    "delete": "Usuń szufladę"
+  },
+  "sieroty": {
+    "title": "Sieroty",
+    "description": "Meble bez przypisanego pokoju",
+    "assignToRoom": "Przypisz do pokoju"
+  },
+  "items": {
+    "add": "Dodaj przedmiot",
+    "name": "Nazwa przedmiotu",
+    "expirationDate": "Data ważności",
+    "noExpiration": "Brak daty ważności",
+    "archive": "Archiwizuj",
+    "archived": "Zarchiwizowany",
+    "permanentDelete": "Usuń trwale",
+    "permanentDeleteConfirm": "Ten przedmiot i jego zdjęcia zostaną trwale usunięte. Tej operacji nie można cofnąć.",
+    "location": "Lokalizacja",
+    "groupByLocation": "Według lokalizacji",
+    "groupByExpiration": "Według daty ważności",
+    "loose": "Luźne przedmioty"
+  },
+  "qr": {
+    "generate": "Kod QR",
+    "download": "Pobierz",
+    "print": "Drukuj",
+    "scanTitle": "Skanuj kod QR",
+    "scanAgain": "Skanuj ponownie",
+    "viewItem": "Zobacz przedmiot",
+    "goToLocation": "Przejdź do lokalizacji",
+    "unrecognised": "Nierozpoznany kod QR",
+    "archivedItem": "Ten przedmiot został zarchiwizowany",
+    "cameraError": "Nie udało się uzyskać dostępu do kamery"
+  },
+  "expiration": {
+    "expired": "Przeterminowane",
+    "expiringSoon": "Wkrótce wygasa",
+    "noDate": "Brak daty ważności",
+    "daysLeft": "Pozostało {count} dni"
+  },
+  "fridge": {
+    "dragHint": "Przytrzymaj i przeciągnij, aby zmienić kolejność",
+    "reorderSaved": "Kolejność zapisana",
+    "reorderFailed": "Nie udało się zapisać kolejności"
+  },
+  "photos": {
+    "takePhoto": "Zrób zdjęcie",
+    "uploadPhoto": "Wgraj",
+    "retake": "Ponów",
+    "uploading": "Przesyłanie zdjęcia...",
+    "cameraAccess": "Wymagany dostęp do kamery",
+    "cameraError": "Nie udało się uzyskać dostępu do kamery",
+    "viewPhoto": "Zobacz zdjęcie"
+  },
+  "search": {
+    "title": "Szukaj",
+    "placeholder": "Szukaj przedmiotów, pokoi, mebli...",
+    "searching": "Szukanie...",
+    "noResults": "Brak wyników",
+    "type_item": "Przedmiot",
+    "type_room": "Pokój",
+    "type_storage_unit": "Mebel",
+    "type_shelf": "Półka",
+    "type_drawer": "Szuflada"
+  },
+  "notifications": {
+    "clearExpired": "Wyczyść przeterminowane",
+    "clearExpiredConfirm": "Zarchiwizować wszystkie przeterminowane przedmioty w tej lodówce?",
+    "archivedCount": "Zarchiwizowano {count} przedmiotów"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "language": "Język",
+    "dateFormat": "Format daty",
+    "notifications": "Powiadomienia",
+    "enableNotifications": "Włącz powiadomienia push",
+    "disableNotifications": "Wyłącz powiadomienia push"
+  }
+}

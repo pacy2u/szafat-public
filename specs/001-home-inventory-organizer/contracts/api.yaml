@@ -1,0 +1,841 @@
+openapi: 3.1.0
+info:
+  title: Szafat - Home Inventory Organizer API
+  version: 1.0.0
+  description: REST API for the Home Inventory Organizer PWA. All endpoints require authentication unless marked otherwise.
+
+servers:
+  - url: /api
+    description: Next.js API routes
+
+security:
+  - session: []
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: authjs.session-token
+
+  schemas:
+    Apartment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        ownerId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+      required: [id, name, ownerId]
+
+    Room:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        apartmentId: { type: string, format: uuid }
+        name: { type: string }
+        sortOrder: { type: integer }
+        storageUnits: { type: array, items: { $ref: '#/components/schemas/StorageUnit' } }
+      required: [id, apartmentId, name]
+
+    StorageUnit:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        apartmentId: { type: string, format: uuid }
+        roomId: { type: string, format: uuid, nullable: true }
+        name: { type: string }
+        type: { type: string, enum: [WARDROBE, FRIDGE] }
+        sortOrder: { type: integer }
+        shelves: { type: array, items: { $ref: '#/components/schemas/Shelf' } }
+        drawers: { type: array, items: { $ref: '#/components/schemas/Drawer' } }
+      required: [id, apartmentId, name, type]
+
+    Shelf:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        storageUnitId: { type: string, format: uuid }
+        name: { type: string }
+        sortOrder: { type: integer }
+      required: [id, storageUnitId, name]
+
+    Drawer:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        storageUnitId: { type: string, format: uuid }
+        name: { type: string }
+        sortOrder: { type: integer }
+      required: [id, storageUnitId, name]
+
+    Item:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        photoUrl: { type: string, nullable: true }
+        thumbnailUrl: { type: string, nullable: true }
+        expirationDate: { type: string, format: date, nullable: true }
+        storageUnitId: { type: string, format: uuid }
+        shelfId: { type: string, format: uuid, nullable: true }
+        drawerId: { type: string, format: uuid, nullable: true }
+        sortOrder: { type: integer }
+        archived: { type: boolean }
+        archivedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        locationPath: { type: string, description: "Human-readable path e.g. 'Kitchen > Main Fridge > Top Shelf'" }
+      required: [id, name, storageUnitId, archived]
+
+    SearchResult:
+      type: object
+      properties:
+        type: { type: string, enum: [item, room, storage_unit, shelf, drawer] }
+        id: { type: string, format: uuid }
+        name: { type: string }
+        locationPath: { type: string }
+        thumbnailUrl: { type: string, nullable: true }
+      required: [type, id, name, locationPath]
+
+    Member:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string }
+        joinedAt: { type: string, format: date-time }
+      required: [id, userId, name, email]
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        message: { type: string }
+      required: [error, message]
+
+paths:
+  # === Auth (public) ===
+  /api/auth/register:
+    post:
+      summary: Register new user (FR-032)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                name: { type: string }
+              required: [email, password, name]
+      responses:
+        '201': { description: User created, session started }
+        '409': { description: Email already registered }
+
+  # === Apartments ===
+  /api/apartments:
+    get:
+      summary: List user's apartments (owned + shared) (FR-029)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Apartment' }
+    post:
+      summary: Create apartment (FR-029)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+              required: [name]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Apartment' }
+
+  /api/apartments/{apartmentId}:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get apartment with full hierarchy (rooms, units, shelves, drawers)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Apartment'
+                  - type: object
+                    properties:
+                      rooms:
+                        type: array
+                        items: { $ref: '#/components/schemas/Room' }
+                      orphanedUnits:
+                        type: array
+                        items: { $ref: '#/components/schemas/StorageUnit' }
+                        description: Sieroty - storage units with no room
+    patch:
+      summary: Update apartment name
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Apartment' }
+    delete:
+      summary: Delete apartment (owner only)
+      responses:
+        '204': { description: Deleted }
+        '403': { description: Not the owner }
+
+  # === Apartment Members ===
+  /api/apartments/{apartmentId}/members:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: List apartment members (FR-030)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Member' }
+
+  /api/apartments/{apartmentId}/members/{memberId}:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+      - name: memberId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      summary: Remove member from apartment (owner only)
+      responses:
+        '204': { description: Member removed }
+        '403': { description: Not the owner }
+
+  # === Invite Links ===
+  /api/apartments/{apartmentId}/invites:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Generate invite link (owner only) (FR-033)
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  url: { type: string, format: uri }
+
+  /api/apartments/{apartmentId}/invites/{inviteId}:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+      - name: inviteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      summary: Revoke invite link (owner only) (FR-033a)
+      responses:
+        '204': { description: Invite revoked }
+
+  /api/invites/{token}/accept:
+    parameters:
+      - name: token
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      summary: Accept invite link and join apartment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Apartment' }
+        '404': { description: Invalid or revoked invite }
+
+  # === Rooms ===
+  /api/apartments/{apartmentId}/rooms:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Create room (FR-001)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+              required: [name]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+
+  /api/rooms/{roomId}:
+    parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Rename room (FR-001)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+    delete:
+      summary: Delete room — orphans storage units to Sieroty (FR-021, FR-028)
+      responses:
+        '204': { description: Room deleted, units orphaned }
+
+  # === Data Export ===
+  /api/apartments/{apartmentId}/export:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Export apartment data as JSON backup (FR-039)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  apartment: { $ref: '#/components/schemas/Apartment' }
+                  rooms: { type: array, items: { $ref: '#/components/schemas/Room' } }
+                  storageUnits: { type: array, items: { $ref: '#/components/schemas/StorageUnit' } }
+                  items: { type: array, items: { $ref: '#/components/schemas/Item' } }
+                  exportedAt: { type: string, format: date-time }
+
+  # === Storage Units ===
+  /api/apartments/{apartmentId}/storage-units:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Create storage unit in a room (FR-002)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                type: { type: string, enum: [WARDROBE, FRIDGE] }
+                roomId: { type: string, format: uuid }
+              required: [name, type, roomId]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StorageUnit' }
+
+  /api/storage-units/{unitId}:
+    parameters:
+      - name: unitId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get storage unit with shelves, drawers, and items
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StorageUnit'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Item' }
+    patch:
+      summary: Update storage unit (rename, move to room) (FR-002a, FR-002b, FR-022)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                roomId: { type: string, format: uuid, nullable: true }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StorageUnit' }
+    delete:
+      summary: Delete storage unit (FR-035) — requires confirmation if has contents
+      parameters:
+        - name: confirm
+          in: query
+          schema: { type: boolean }
+          description: Must be true if unit has contents (FR-019)
+      responses:
+        '204': { description: Deleted }
+        '409': { description: Has contents, requires confirm=true }
+
+  # === Shelves ===
+  /api/storage-units/{unitId}/shelves:
+    parameters:
+      - name: unitId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Create shelf in storage unit (FR-003)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+              required: [name]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shelf' }
+
+  /api/shelves/{shelfId}:
+    parameters:
+      - name: shelfId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Update shelf (rename, move to different unit) (FR-002a, FR-020)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                storageUnitId: { type: string, format: uuid }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shelf' }
+    delete:
+      summary: Delete shelf (FR-035)
+      parameters:
+        - name: confirm
+          in: query
+          schema: { type: boolean }
+      responses:
+        '204': { description: Deleted }
+        '409': { description: Has items, requires confirm=true }
+
+  # === Drawers ===
+  /api/storage-units/{unitId}/drawers:
+    parameters:
+      - name: unitId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Create drawer in storage unit (FR-003)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+              required: [name]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Drawer' }
+
+  /api/drawers/{drawerId}:
+    parameters:
+      - name: drawerId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Update drawer (rename, move to different unit) (FR-002a, FR-020)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                storageUnitId: { type: string, format: uuid }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Drawer' }
+    delete:
+      summary: Delete drawer (FR-035)
+      parameters:
+        - name: confirm
+          in: query
+          schema: { type: boolean }
+      responses:
+        '204': { description: Deleted }
+        '409': { description: Has items, requires confirm=true }
+
+  # === Items ===
+  /api/items:
+    post:
+      summary: Create item (FR-004)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                storageUnitId: { type: string, format: uuid }
+                shelfId: { type: string, format: uuid, nullable: true }
+                drawerId: { type: string, format: uuid, nullable: true }
+                expirationDate: { type: string, format: date, nullable: true }
+              required: [name, storageUnitId]
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+
+  /api/items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get item detail (including QR code URL)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Item'
+                  - type: object
+                    properties:
+                      qrCodeUrl: { type: string, description: URL to QR code image }
+    patch:
+      summary: Update item (name, expiration, location) (FR-034, FR-018)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                expirationDate: { type: string, format: date, nullable: true }
+                storageUnitId: { type: string, format: uuid }
+                shelfId: { type: string, format: uuid, nullable: true }
+                drawerId: { type: string, format: uuid, nullable: true }
+                sortOrder: { type: integer }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+    delete:
+      summary: Archive item (soft delete) (FR-026)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+              description: Item with archived=true
+
+  /api/items/{itemId}/permanent:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      summary: Permanently delete archived item (FR-026a)
+      responses:
+        '204': { description: Permanently deleted }
+        '409': { description: Item not archived — must archive first }
+
+  /api/items/{itemId}/photo:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Get presigned upload URL for item photo (FR-008, FR-009)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contentType: { type: string, enum: [image/webp, image/jpeg, image/png] }
+              required: [contentType]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadUrl: { type: string, format: uri, description: Presigned S3 PUT URL }
+                  photoUrl: { type: string, description: Final photo URL after upload }
+                  thumbnailUploadUrl: { type: string, format: uri }
+                  thumbnailUrl: { type: string }
+
+  /api/items/{itemId}/qr:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get QR code image for item (FR-010, FR-012)
+      parameters:
+        - name: format
+          in: query
+          schema: { type: string, enum: [png, svg], default: png }
+        - name: size
+          in: query
+          schema: { type: integer, default: 300 }
+      responses:
+        '200':
+          content:
+            image/png:
+              schema: { type: string, format: binary }
+            image/svg+xml:
+              schema: { type: string }
+
+  # === Bulk Actions ===
+  /api/items/bulk-archive:
+    post:
+      summary: Bulk archive expired fridge items (FR-027)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                storageUnitId: { type: string, format: uuid }
+              required: [storageUnitId]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archivedCount: { type: integer }
+
+  /api/items/reorder:
+    patch:
+      summary: Batch update sort order for fridge drag-and-drop (FR-014)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      sortOrder: { type: integer }
+                    required: [id, sortOrder]
+              required: [items]
+      responses:
+        '200': { description: Order updated }
+
+  # === Search ===
+  /api/apartments/{apartmentId}/search:
+    parameters:
+      - name: apartmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Global search across apartment (FR-025)
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 50 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SearchResult' }
+
+  # === QR Scan ===
+  /api/scan/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Resolve scanned QR code to item info (FR-011)
+      security: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Item'
+                  - type: object
+                    properties:
+                      locationPath: { type: string }
+                      isArchived: { type: boolean }
+        '404':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              description: Item permanently deleted or unknown
+
+  # === Push Notifications ===
+  /api/push/subscribe:
+    post:
+      summary: Register push subscription (FR-024)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint: { type: string }
+                keys:
+                  type: object
+                  properties:
+                    p256dh: { type: string }
+                    auth: { type: string }
+              required: [endpoint, keys]
+      responses:
+        '201': { description: Subscription registered }
+
+  /api/push/unsubscribe:
+    post:
+      summary: Remove push subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint: { type: string }
+              required: [endpoint]
+      responses:
+        '204': { description: Subscription removed }
+
+  # === User Settings ===
+  /api/user/settings:
+    get:
+      summary: Get user preferences (locale, date format)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locale: { type: string, enum: [PL, EN] }
+                  dateFormat: { type: string, enum: [DD_MM_YYYY, MM_DD_YYYY] }
+    patch:
+      summary: Update user preferences (FR-037, FR-038)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                locale: { type: string, enum: [PL, EN] }
+                dateFormat: { type: string, enum: [DD_MM_YYYY, MM_DD_YYYY] }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locale: { type: string, enum: [PL, EN] }
+                  dateFormat: { type: string, enum: [DD_MM_YYYY, MM_DD_YYYY] }

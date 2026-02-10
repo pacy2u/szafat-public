@@ -1,0 +1,160 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "search": "Search",
+    "noResults": "No results found",
+    "required": "This field is required"
+  },
+  "nav": {
+    "home": "Home",
+    "apartments": "Apartments",
+    "scan": "Scan",
+    "search": "Search",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginTitle": "Log in to Szafat",
+    "registerTitle": "Create an account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "invalidEmail": "Please enter a valid email",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "emailTaken": "This email is already registered",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "apartments": {
+    "title": "My Apartments",
+    "create": "Create Apartment",
+    "name": "Apartment name",
+    "members": "Members",
+    "inviteLink": "Invite Link",
+    "generateInvite": "Generate Invite Link",
+    "revokeInvite": "Revoke",
+    "removeMember": "Remove",
+    "switchApartment": "Switch Apartment",
+    "deleteApartment": "Delete Apartment",
+    "deleteConfirm": "Are you sure? All rooms, storage units, and items will be permanently deleted.",
+    "rename": "Rename Apartment",
+    "export": "Export data (JSON)"
+  },
+  "rooms": {
+    "title": "Rooms",
+    "add": "Add Room",
+    "name": "Room name",
+    "delete": "Delete Room",
+    "deleteConfirm": "Deleting this room will move all storage units to Sieroty (orphans).",
+    "rename": "Rename Room"
+  },
+  "storage": {
+    "add": "Add Storage Unit",
+    "name": "Storage unit name",
+    "type": "Type",
+    "wardrobe": "Wardrobe",
+    "fridge": "Fridge",
+    "delete": "Delete Storage Unit",
+    "deleteConfirm": "This will archive all items and delete all shelves and drawers. Continue?",
+    "rename": "Rename",
+    "moveTo": "Move to room"
+  },
+  "shelves": {
+    "add": "Add Shelf",
+    "name": "Shelf name",
+    "rename": "Rename Shelf",
+    "delete": "Delete Shelf"
+  },
+  "drawers": {
+    "add": "Add Drawer",
+    "name": "Drawer name",
+    "rename": "Rename Drawer",
+    "delete": "Delete Drawer"
+  },
+  "sieroty": {
+    "title": "Orphans (Sieroty)",
+    "description": "Storage units without a room",
+    "assignToRoom": "Assign to room"
+  },
+  "items": {
+    "add": "Add Item",
+    "name": "Item name",
+    "expirationDate": "Expiration date",
+    "noExpiration": "No expiration date",
+    "archive": "Archive",
+    "archived": "Archived",
+    "permanentDelete": "Permanently Delete",
+    "permanentDeleteConfirm": "This item and its photos will be permanently removed. This cannot be undone.",
+    "location": "Location",
+    "groupByLocation": "By location",
+    "groupByExpiration": "By expiration date",
+    "loose": "Loose items"
+  },
+  "qr": {
+    "generate": "QR Code",
+    "download": "Download",
+    "print": "Print",
+    "scanTitle": "Scan QR Code",
+    "scanAgain": "Scan Again",
+    "viewItem": "View Item",
+    "goToLocation": "Go to Location",
+    "unrecognised": "Unrecognised QR code",
+    "archivedItem": "This item has been archived",
+    "cameraError": "Could not access camera"
+  },
+  "expiration": {
+    "expired": "Expired",
+    "expiringSoon": "Expiring soon",
+    "noDate": "No expiration date",
+    "daysLeft": "{count} days left"
+  },
+  "fridge": {
+    "dragHint": "Long-press and drag to reorder",
+    "reorderSaved": "Order saved",
+    "reorderFailed": "Failed to save order"
+  },
+  "photos": {
+    "takePhoto": "Take Photo",
+    "uploadPhoto": "Upload",
+    "retake": "Retake",
+    "uploading": "Uploading photo...",
+    "cameraAccess": "Camera access required",
+    "cameraError": "Could not access camera",
+    "viewPhoto": "View Photo"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search items, rooms, storage...",
+    "searching": "Searching...",
+    "noResults": "No results found",
+    "type_item": "Item",
+    "type_room": "Room",
+    "type_storage_unit": "Storage Unit",
+    "type_shelf": "Shelf",
+    "type_drawer": "Drawer"
+  },
+  "notifications": {
+    "clearExpired": "Clear all expired",
+    "clearExpiredConfirm": "Archive all expired items in this fridge?",
+    "archivedCount": "{count} items archived"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "dateFormat": "Date format",
+    "notifications": "Notifications",
+    "enableNotifications": "Enable push notifications",
+    "disableNotifications": "Disable push notifications"
+  }
+}

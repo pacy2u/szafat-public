@@ -2,7 +2,7 @@ import webpush from 'web-push';
 
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || '';
 const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || '';
-const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@szafat.app';
+const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@example.com';
 
 if (vapidPublicKey && vapidPrivateKey) {
   webpush.setVapidDetails(vapidEmail, vapidPublicKey, vapidPrivateKey);

@@ -24,7 +24,7 @@ npx prisma migrate dev
 
 # 4. Generate VAPID keys for Web Push
 npx web-push generate-vapid-keys
-# Copy the output to .env.local (NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+# Copy the output to .env.local (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
 
 # 5. Start development server
 npm run dev
@@ -49,9 +49,9 @@ S3_BUCKET_NAME=szafat-photos
 S3_PUBLIC_URL=https://photos.yourdomain.com
 
 # Web Push (VAPID)
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=<public-key>
+VAPID_PUBLIC_KEY=<public-key>
 VAPID_PRIVATE_KEY=<private-key>
-VAPID_MAILTO=mailto:admin@yourdomain.com
+VAPID_EMAIL=mailto:admin@yourdomain.com
 ```
 
 ## Key Commands
